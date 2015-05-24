@@ -42,7 +42,7 @@
     var pixelated = new Image();
 
     var DrawCanvas = function(canvasId) {
-        canvas = document.getElementById(canvasId);
+        var canvas = document.getElementById(canvasId);
         var context = canvas.getContext('2d');
 
         canvas.width = 400
@@ -122,10 +122,37 @@
         return canvas;
     };
 
-    window.onload = function() {
-        draw = new DrawCanvas("drawsurface");
+    var ChartCanvas = function(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.context = this.canvas.getContext('2d');
+        this.context.font = "18px serif";
+    }
 
-        updateEvent = new CustomEvent('updateEvent', {'detail': draw})
+    ChartCanvas.prototype = {
+
+        // Array on form [(num, confidence), (num, confidence), (num, confidence), ...]
+        draw: function(array) {
+            var bar = {
+                height: 20,
+                padding: 5,
+                maxWidth: 140
+            }
+
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            for (var i = 0; i < array.length; i++) {
+                this.context.fillStyle = "#333";
+                this.context.fillText(array[i][0], 8, 25 + (i * (bar.height + bar.padding)))
+                this.context.fillStyle = "#88f";
+                this.context.fillRect(24, 10 + (i * (bar.height + bar.padding)), bar.maxWidth * array[i][1], bar.height);
+            }
+        }
+    }
+
+    window.onload = function() {
+        var drawCanvas = new DrawCanvas("drawsurface");
+        var chartCanvas = new ChartCanvas("chart");
+
+        updateEvent = new CustomEvent('updateEvent', {'detail': drawCanvas})
 
         document.addEventListener('updateEvent', function(e) {
             var canvas = e.detail;
@@ -215,6 +242,16 @@
             maxY = centerY + frameHeight/2;
             minX = centerX - frameWidth/2;
             maxX = centerX + frameWidth/2;
+
+            // context.strokeStyle = 'rgba(255,0,0,0.4)';;
+            // context.lineWidth = 1;
+            // context.lineJoin = context.lineCap = 'miter';
+            // context.setLineDash([4, 2]);
+            // context.strokeRect(minX, minY, maxX-minX, maxY-minY)
+            // context.lineJoin = context.lineCap = 'round';
+
+            // context.lineWidth = 14;
+            // context.strokeStyle = "black";
 
             // console.log(minY, minX, maxY, maxX);
 
@@ -325,26 +362,7 @@
             var classification = document.getElementById("classification");
             classification.innerHTML = indexedOutput[0][0];
 
-            resultCanvas = document.getElementById("chart");
-            resultContext = resultCanvas.getContext("2d");
-
-            resultContext.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-
-            var bar = {
-                height: 20,
-                padding: 5,
-                maxWidth: 140
-            }
-
-            resultContext.font = "18px serif";
-
-            for (var i = 0; i < 3; i++) {
-                resultContext.fillStyle = "#333";
-                resultContext.fillText(indexedOutput[i][0], 8, 25 + (i * (bar.height + bar.padding)))
-                resultContext.fillStyle = "#88f";
-                resultContext.fillRect(24, 10 + (i * (bar.height + bar.padding)), bar.maxWidth * indexedOutput[i][1], bar.height);
-            }
-
+            chartCanvas.draw([indexedOutput[0], indexedOutput[1], indexedOutput[2]])
 
         }, false);
     };
