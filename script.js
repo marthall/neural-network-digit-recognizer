@@ -45,8 +45,8 @@
         canvas = document.getElementById(canvasId);
         var context = canvas.getContext('2d');
 
-        canvas.width = 300
-        canvas.height = 300;
+        canvas.width = 400
+        canvas.height = 400;
         
         context.lineWidth = 14;
         context.lineJoin = context.lineCap = 'round';
@@ -115,6 +115,8 @@
          // bind event handler to clear button
         document.getElementById('clear').addEventListener('click', function() {
             context.clearRect(0, 0, canvas.width, canvas.height);
+            resultContext.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+            
         }, false);
 
         return canvas;
@@ -214,7 +216,7 @@
             minX = centerX - frameWidth/2;
             maxX = centerX + frameWidth/2;
 
-            console.log(minY, minX, maxY, maxX);
+            // console.log(minY, minX, maxY, maxX);
 
             // Delete this if not drawing square
             // context.lineWidth = 1;
@@ -250,7 +252,7 @@
                 small_matrix.push(row);
             }
 
-            console.log(small_matrix);
+            // console.log(small_matrix);
 
             function calculateCenterOfMass(matrix, threshold) {
                 var centerY = 0, centerX = 0;
@@ -274,7 +276,7 @@
 
             var center = calculateCenterOfMass(small_matrix, 0.5)
 
-            console.log(center.y, center.x);
+            // console.log(center.y, center.x);
 
             var padding = {
                 top: BOUNDING_BOX_SIZE / 2 - center.y + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
@@ -283,7 +285,7 @@
                 right: center.x - BOUNDING_BOX_SIZE / 2 + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2
             }
 
-            console.log(padding);
+            // console.log(padding);
 
             var correctMatrix = new Array();
             for (var i = 0; i < padding.top; i++) {
@@ -314,10 +316,35 @@
 
             nn = new Network();
             var output = nn.feedforward(nodes);
+            var indexes = [0,1,2,3,4,5,6,7,8,9]
 
-            var i = output.indexOf(Math.max.apply(Math, output));
-            console.log(output);
-            console.log(i);
+            var indexedOutput = zip([indexes, output]).sort(function(a, b) { return b[1] - a[1]});
+
+            console.log(indexedOutput[0], indexedOutput[1], indexedOutput[2]);
+
+            var classification = document.getElementById("classification");
+            classification.innerHTML = indexedOutput[0][0];
+
+            resultCanvas = document.getElementById("chart");
+            resultContext = resultCanvas.getContext("2d");
+
+            resultContext.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+
+            var bar = {
+                height: 20,
+                padding: 5,
+                maxWidth: 140
+            }
+
+            resultContext.font = "18px serif";
+
+            for (var i = 0; i < 3; i++) {
+                resultContext.fillStyle = "#333";
+                resultContext.fillText(indexedOutput[i][0], 8, 25 + (i * (bar.height + bar.padding)))
+                resultContext.fillStyle = "#88f";
+                resultContext.fillRect(24, 10 + (i * (bar.height + bar.padding)), bar.maxWidth * indexedOutput[i][1], bar.height);
+            }
+
 
         }, false);
     };
