@@ -19,7 +19,7 @@
     var Network = function() {};
 
     Network.prototype.feedforward = function(a) {
-        var data = zip([biases, weights]);
+        var data = zip([biases, weights]);  
 
         // Iterate through layers
         for (var i = 0; i < data.length; i++) {
@@ -36,7 +36,7 @@
         return a;
     }
 
-    var BOUNDING_BOX_SIZE = 28;
+    var BOUNDING_BOX_SIZE = 20;
     var IMAGE_SIZE = 28;
 
     var pixelated = new Image();
@@ -45,8 +45,8 @@
         canvas = document.getElementById(canvasId);
         var context = canvas.getContext('2d');
 
-        canvas.width = 200
-        canvas.height = 200;
+        canvas.width = 300
+        canvas.height = 300;
         
         context.lineWidth = 14;
         context.lineJoin = context.lineCap = 'round';
@@ -251,6 +251,39 @@
             }
 
             console.log(small_matrix);
+
+            function calculateCenterOfMass(matrix, threshold) {
+                var centerY = 0, centerX = 0;
+                var countY = 0, countX = 0;
+
+                for (var y = 0; y < matrix.length; y++) {
+                    for (var x = 0; x < matrix[y].length; x++) {
+                        if (matrix[y][x] > threshold) {
+                            centerY += y;
+                            countY++;
+                            centerX += x;
+                            countX++;
+                        }
+                    }
+                }
+                return {
+                    y: Math.round(centerY/countY),
+                    x: Math.round(centerX/countX)
+                };
+            }
+
+            var center = calculateCenterOfMass(small_matrix, 0.5)
+
+            console.log(center.y, center.x);
+
+            var padding = {
+                top: BOUNDING_BOX_SIZE / 2 - center.y + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
+                bottom: center.y - BOUNDING_BOX_SIZE / 2 + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
+                left: BOUNDING_BOX_SIZE / 2 - center.x + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
+                right: center.x - BOUNDING_BOX_SIZE / 2 + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2
+            }
+
+            console.log(padding);
 
             // Flatten matrix
             var nodes = [].concat.apply([], small_matrix)
