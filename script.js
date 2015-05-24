@@ -285,8 +285,32 @@
 
             console.log(padding);
 
+            var correctMatrix = new Array();
+            for (var i = 0; i < padding.top; i++) {
+                correctMatrix.push(Array.apply(null, new Array(IMAGE_SIZE)).map(Number.prototype.valueOf,0));
+            }
+            for (var i = 0; i < BOUNDING_BOX_SIZE; i++) {
+
+                var row = new Array();
+                for (var j = 0; j < padding.left; j++) {
+                    row.push(0);
+                }
+
+                for (var j = 0; j < BOUNDING_BOX_SIZE; j++) {
+                    row.push(small_matrix[i][j]);
+                }
+
+                for (var j = 0; j < padding.right; j++) {
+                    row.push(0);
+                }
+                correctMatrix.push(row);
+            }
+            for (var i = 0; i < padding.bottom; i++) {
+                correctMatrix.push(Array.apply(null, new Array(IMAGE_SIZE)).map(Number.prototype.valueOf,0));
+            }
+
             // Flatten matrix
-            var nodes = [].concat.apply([], small_matrix)
+            var nodes = [].concat.apply([], correctMatrix)
 
             nn = new Network();
             var output = nn.feedforward(nodes);
