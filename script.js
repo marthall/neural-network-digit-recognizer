@@ -36,9 +36,8 @@
         return a;
     }
 
-    var DIM = 28;
-    var SCALE = 8;
-    var HEIGHT = WIDTH = DIM*SCALE
+    var BOUNDING_BOX_SIZE = 28;
+    var IMAGE_SIZE = 28;
 
     var pixelated = new Image();
 
@@ -46,10 +45,10 @@
         canvas = document.getElementById(canvasId);
         var context = canvas.getContext('2d');
 
-        canvas.width = WIDTH
-        canvas.height = HEIGHT;
+        canvas.width = 200
+        canvas.height = 200;
         
-        context.lineWidth = 20;
+        context.lineWidth = 14;
         context.lineJoin = context.lineCap = 'round';
         context.shadowBlur = 5;
         context.shadowColor = 'rgb(40, 40, 40)';
@@ -130,37 +129,128 @@
             var canvas = e.detail;
             var context = canvas.getContext('2d');
             var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            // context.clearRect (0, 0, canvas.width, canvas.height);
             
-            image = imageData.data;
+            var image = imageData.data;
+            var height = imageData.height;
+            var width = imageData.width;
 
             // Turns all the pixels into single gray values
             // g = (r, g, b, a)
-            var gray = new Array(WIDTH*HEIGHT);
+            var gray = new Array(width*height);
             for (var i = 0; i < image.length; i+=4) {
                 gray[i/4] = (1 - (image[i]/255 + image[i+1]/255 + image[i+2]/255) / 3) * (image[i+3] / 255);
             }
 
-            // Transforms the array into a WIDTH*HEIGHT matrix 
+            // Transforms the array into a width*height matrix 
             gray_matrix = new Array();
-            for (var i = 0; i < WIDTH*HEIGHT; i+= WIDTH) {
-                gray_matrix.push(gray.slice(i, i+WIDTH))
+            for (var i = 0; i < width*height; i+= width) {
+                gray_matrix.push(gray.slice(i, i+width))
             }
 
-            // Downscale the matrix into a DIM*DIM matrix
-            small_matrix = new Array();
-            for (var i = 0; i < HEIGHT; i+= SCALE) {
-                var row = new Array();
-                for (var j = 0; j < WIDTH; j+= SCALE) {
-                    var tmp = 0;
-                    for (var m = i; m < i+SCALE; m++) {
-                        for (var n = j; n < j+SCALE; n++) {
-                            tmp += gray_matrix[m][n];
+            function getBoundingBox(image) {
+
+                minY:
+                for (var y = 0; y < image.length; y++) {
+                    for (var x = 0; x < image[y].length; x++) {
+                        if (image[y][x] != 0) {
+                            minY = y
+                            break minY;
                         }
                     }
-                    row.push(tmp/(SCALE*SCALE));
+                }
+
+                minX:
+                for (var x = 0; x < image.length; x++) {
+                    for (var y = 0; y < image[x].length; y++) {
+                        if (image[y][x] != 0) {
+                            minX = x
+                            break minX;
+                        }
+                    }
+                }
+
+                maxY:
+                for (var y = image.length-1; y >= 0; y--) {
+                    for (var x = 0; x < image[y].length; x++) {
+                        if (image[y][x] != 0) {
+                            maxY = y
+                            break maxY;
+                        }
+                    }
+                }
+
+                maxX:
+                for (var x = image.length-1; x >= 0; x--) {
+                    for (var y = 0; y < image.length; y++) {
+                        if (image[y][x] != 0) {
+                            maxX = x
+                            break maxX;
+                        }
+                    }
+                }
+
+                return minY, minX, maxY, maxX
+            }
+
+            var minY, minX, maxY, maxX = getBoundingBox(gray_matrix)
+
+            // Make a square bounding box, multiple of BOUNDING_BOX_SIZE pixels
+            var frameWidth = Math.round((maxX - minX) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
+            var frameHeight = Math.round((maxY - minY) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
+
+            var centerY = Math.round((minY + maxY) / 2);
+            var centerX = Math.round((minX + maxX) / 2);
+
+            if (frameHeight > frameWidth) {
+                frameWidth = frameHeight;
+            } else {
+                frameHeight = frameWidth;
+            }
+
+            minY = centerY - frameHeight/2;
+            maxY = centerY + frameHeight/2;
+            minX = centerX - frameWidth/2;
+            maxX = centerX + frameWidth/2;
+
+            console.log(minY, minX, maxY, maxX);
+
+            // Delete this if not drawing square
+            // context.lineWidth = 1;
+            // context.shadowBlur = 0;
+            // context.strokeStyle = 'red';
+            // context.rect(minX, minY, maxX-minX, maxY-minY);
+            // context.stroke();
+
+            var boundingBox = new Array();
+            for (i = minY; i < maxY; i++) {
+                var row = new Array();
+                for (j = minX; j < maxX; j++) {
+                    row.push(gray_matrix[i][j]);
+                }
+                boundingBox.push(row);
+            }
+
+            var scale = boundingBox.length / BOUNDING_BOX_SIZE;
+
+            // Downscale the matrix into a BOUNDING_BOX_SIZE matrix
+            small_matrix = new Array();
+            for (var i = 0; i < boundingBox.length; i+= scale) {
+                var row = new Array();
+                for (var j = 0; j < boundingBox[i].length; j+= scale) {
+                    var tmp = 0;
+                    for (var m = i; m < i+scale; m++) {
+                        for (var n = j; n < j+scale; n++) {
+                            tmp += boundingBox[m][n];
+                        }
+                    }
+                    row.push(tmp/(scale*scale));
                 }
                 small_matrix.push(row);
             }
+
+            console.log(small_matrix);
 
             // Flatten matrix
             var nodes = [].concat.apply([], small_matrix)
