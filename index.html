@@ -1,4 +1,7 @@
 <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
   <body>
     <h1>Digit recognition</h1>
     <canvas id="drawsurface"></canvas>
@@ -8,40 +11,3 @@
   <script src="data.js"></script>
   <script src="script.js"></script>   
 </html>
-
-<style type="text/css">
-h1 {
-    text-align: center;
-    font-family:  Gill Sans / Gill Sans MT, sans-serif;
-    color: #555;
-    font-size: 80px;
-}
-
-#drawsurface {
-    display: block;
-    margin: 50px auto;
-    /*border: 1px solid #444;*/
-    box-shadow: 2px 1px 10px #555;
-}
-
-#normalize {
-    display: block;
-    margin: 50px auto;
-    /*border: 1px solid #444;*/
-    box-shadow: 2px 1px 10px #555;
-}
-
-input {
-  margin-left: 600px;
-}
-
-canvas {
-    image-rendering: optimizeSpeed;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: -o-crisp-edges;
-    image-rendering: crisp-edges;
-    -ms-interpolation-mode: nearest-neighbor;
-}
-
-</style>
