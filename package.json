@@ -1,0 +1,23 @@
+{
+  "name": "neural-network-digit-recognizer",
+  "version": "0.1.0",
+  "description": "Simple webapp to recognize handwritten digits",
+  "main": "Gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marthall/neural-network-digit-recognizer.git"
+  },
+  "author": "Martin Hallén",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marthall/neural-network-digit-recognizer/issues"
+  },
+  "homepage": "https://github.com/marthall/neural-network-digit-recognizer#readme",
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-concat": "^2.5.2"
+  }
+}
