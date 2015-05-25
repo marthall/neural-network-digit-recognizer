@@ -39,49 +39,40 @@
     var BOUNDING_BOX_SIZE = 20;
     var IMAGE_SIZE = 28;
 
-    var pixelated = new Image();
-
     var DrawCanvas = function(canvasId) {
-        var canvas = document.getElementById(canvasId);
-        var context = canvas.getContext('2d');
+        this.canvas = document.getElementById(canvasId);
+        this.context = this.canvas.getContext('2d');
 
-        canvas.width = 400
-        canvas.height = 400;
+        this.canvas.width = 400
+        this.canvas.height = 400;
         
-        context.lineWidth = 14;
-        context.lineJoin = context.lineCap = 'round';
-        context.shadowBlur = 5;
-        context.shadowColor = 'rgb(40, 40, 40)';
-        
+        this.context.lineWidth = 14;
+        this.context.lineJoin = this.context.lineCap = 'round';
+        this.context.shadowBlur = 5;
+        this.context.shadowColor = 'rgb(40, 40, 40)';
+
         pencil = new pencil();
 
         // Attach the mousedown, mousemove and mouseup event listeners
-        canvas.addEventListener('mousedown', draw_event, false);
-        canvas.addEventListener('mousemove', draw_event, false);
-        canvas.addEventListener('mouseup',   draw_event, false);
+        this.canvas.addEventListener('mousedown', draw_event, false);
+        this.canvas.addEventListener('mousemove', draw_event, false);
+        this.canvas.addEventListener('mouseup',   draw_event, false);
 
-        this.getImage = function () {
-            return canvas.toDataURL();
-        }
-
-        this.getCanvas = function () {
-            return canvas;
-        }
-
+        parent = this;
         function pencil () {
             self = this;
             self.active = false;
 
             this.mousedown = function (event) {
-                context.beginPath();
-                context.moveTo(event._x, event._y);
+                parent.context.beginPath();
+                parent.context.moveTo(event._x, event._y);
                 self.active = true;
             };
 
             this.mousemove = function (event) {
                 if (self.active) {
-                    context.lineTo(event._x, event._y);
-                    context.stroke();
+                    parent.context.lineTo(event._x, event._y);
+                    parent.context.stroke();
                 }
             }
 
@@ -110,17 +101,67 @@
                     func(event);
                 }
             }
-        } 
-
-         // bind event handler to clear button
-        document.getElementById('clear').addEventListener('click', function() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            resultContext.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-            
-        }, false);
-
-        return canvas;
+        }
     };
+
+    DrawCanvas.prototype.getInputNodes = function () {
+
+    };
+
+    DrawCanvas.prototype.clear = function () {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    };
+
+    DrawCanvas.getBoundingBox = function(image) {
+        minY:
+        for (var y = 0; y < image.length; y++) {
+            for (var x = 0; x < image[y].length; x++) {
+                if (image[y][x] != 0) {
+                    minY = y
+                    break minY;
+                }
+            }
+        }
+
+        minX:
+        for (var x = 0; x < image.length; x++) {
+            for (var y = 0; y < image[x].length; y++) {
+                if (image[y][x] != 0) {
+                    minX = x
+                    break minX;
+                }
+            }
+        }
+
+        maxY:
+        for (var y = image.length-1; y >= 0; y--) {
+            for (var x = 0; x < image[y].length; x++) {
+                if (image[y][x] != 0) {
+                    maxY = y
+                    break maxY;
+                }
+            }
+        }
+
+        maxX:
+        for (var x = image.length-1; x >= 0; x--) {
+            for (var y = 0; y < image.length; y++) {
+                if (image[y][x] != 0) {
+                    maxX = x
+                    break maxX;
+                }
+            }
+        }
+
+        return {
+            minY: minY,
+            minX: minX,
+            maxY: maxY,
+            maxX: maxX
+        }
+    };
+
+
 
     var ChartCanvas = function(canvasId) {
         this.canvas = document.getElementById(canvasId);
@@ -128,45 +169,49 @@
         this.context.font = "18px serif";
     }
 
-    ChartCanvas.prototype = {
-
-        // Array on form [(num, confidence), (num, confidence), (num, confidence), ...]
-        draw: function(array) {
-            var bar = {
-                height: 20,
-                padding: 5,
-                maxWidth: 140
-            }
-
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            for (var i = 0; i < array.length; i++) {
-                this.context.fillStyle = "#333";
-                this.context.fillText(array[i][0], 8, 25 + (i * (bar.height + bar.padding)))
-                this.context.fillStyle = "#88f";
-                this.context.fillRect(24, 10 + (i * (bar.height + bar.padding)), bar.maxWidth * array[i][1], bar.height);
-            }
+    // Array on form [(num, confidence), (num, confidence), (num, confidence), ...]
+    ChartCanvas.prototype.draw = function(array) {
+        var bar = {
+            height: 20,
+            padding: 5,
+            maxWidth: 140
         }
-    }
+
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (var i = 0; i < array.length; i++) {
+            this.context.fillStyle = "#333";
+            this.context.fillText(array[i][0], 8, 25 + (i * (bar.height + bar.padding)))
+            this.context.fillStyle = "#88f";
+            this.context.fillRect(24, 10 + (i * (bar.height + bar.padding)), bar.maxWidth * array[i][1], bar.height);
+        }
+    };
+
+    ChartCanvas.prototype.clear = function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    };
 
     window.onload = function() {
         var drawCanvas = new DrawCanvas("drawsurface");
         var chartCanvas = new ChartCanvas("chart");
 
-        updateEvent = new CustomEvent('updateEvent', {'detail': drawCanvas})
+        updateEvent = new CustomEvent('updateEvent')
+
+         // bind event handler to clear button
+        document.getElementById('clear').addEventListener('click', function() {
+            drawCanvas.clear();
+            chartCanvas.clear();
+        }, false);
 
         document.addEventListener('updateEvent', function(e) {
-            var canvas = e.detail;
-            var context = canvas.getContext('2d');
-            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-            // context.clearRect (0, 0, canvas.width, canvas.height);
+            var imageData = drawCanvas.context.getImageData(0, 0, drawCanvas.canvas.width, drawCanvas.canvas.height);
             
             var image = imageData.data;
             var height = imageData.height;
             var width = imageData.width;
 
             // Turns all the pixels into single gray values
-            // g = (r, g, b, a)
+            // g = avg(r, g, b) * a
+            // rgb values [0-255] are converted to gray values [0-1], where 1 is black
             var gray = new Array(width*height);
             for (var i = 0; i < image.length; i+=4) {
                 gray[i/4] = (1 - (image[i]/255 + image[i+1]/255 + image[i+2]/255) / 3) * (image[i+3] / 255);
@@ -178,59 +223,16 @@
                 gray_matrix.push(gray.slice(i, i+width))
             }
 
-            function getBoundingBox(image) {
+            // drawCanvas.getBoundingBox(gray_matrix);
 
-                minY:
-                for (var y = 0; y < image.length; y++) {
-                    for (var x = 0; x < image[y].length; x++) {
-                        if (image[y][x] != 0) {
-                            minY = y
-                            break minY;
-                        }
-                    }
-                }
-
-                minX:
-                for (var x = 0; x < image.length; x++) {
-                    for (var y = 0; y < image[x].length; y++) {
-                        if (image[y][x] != 0) {
-                            minX = x
-                            break minX;
-                        }
-                    }
-                }
-
-                maxY:
-                for (var y = image.length-1; y >= 0; y--) {
-                    for (var x = 0; x < image[y].length; x++) {
-                        if (image[y][x] != 0) {
-                            maxY = y
-                            break maxY;
-                        }
-                    }
-                }
-
-                maxX:
-                for (var x = image.length-1; x >= 0; x--) {
-                    for (var y = 0; y < image.length; y++) {
-                        if (image[y][x] != 0) {
-                            maxX = x
-                            break maxX;
-                        }
-                    }
-                }
-
-                return minY, minX, maxY, maxX
-            }
-
-            var minY, minX, maxY, maxX = getBoundingBox(gray_matrix)
+            var box = DrawCanvas.getBoundingBox(gray_matrix)
 
             // Make a square bounding box, multiple of BOUNDING_BOX_SIZE pixels
-            var frameWidth = Math.round((maxX - minX) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
-            var frameHeight = Math.round((maxY - minY) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
+            var frameWidth = Math.round((box.maxX - box.minX) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
+            var frameHeight = Math.round((box.maxY - box.minY) / BOUNDING_BOX_SIZE) * BOUNDING_BOX_SIZE;
 
-            var centerY = Math.round((minY + maxY) / 2);
-            var centerX = Math.round((minX + maxX) / 2);
+            var centerY = Math.round((box.minY + box.maxY) / 2);
+            var centerX = Math.round((box.minX + box.maxX) / 2);
 
             if (frameHeight > frameWidth) {
                 frameWidth = frameHeight;
@@ -238,34 +240,15 @@
                 frameHeight = frameWidth;
             }
 
-            minY = centerY - frameHeight/2;
-            maxY = centerY + frameHeight/2;
-            minX = centerX - frameWidth/2;
-            maxX = centerX + frameWidth/2;
-
-            // context.strokeStyle = 'rgba(255,0,0,0.4)';;
-            // context.lineWidth = 1;
-            // context.lineJoin = context.lineCap = 'miter';
-            // context.setLineDash([4, 2]);
-            // context.strokeRect(minX, minY, maxX-minX, maxY-minY)
-            // context.lineJoin = context.lineCap = 'round';
-
-            // context.lineWidth = 14;
-            // context.strokeStyle = "black";
-
-            // console.log(minY, minX, maxY, maxX);
-
-            // Delete this if not drawing square
-            // context.lineWidth = 1;
-            // context.shadowBlur = 0;
-            // context.strokeStyle = 'red';
-            // context.rect(minX, minY, maxX-minX, maxY-minY);
-            // context.stroke();
+            box.minY = centerY - frameHeight/2;
+            box.maxY = centerY + frameHeight/2;
+            box.minX = centerX - frameWidth/2;
+            box.maxX = centerX + frameWidth/2;
 
             var boundingBox = new Array();
-            for (i = minY; i < maxY; i++) {
+            for (i = box.minY; i < box.maxY; i++) {
                 var row = new Array();
-                for (j = minX; j < maxX; j++) {
+                for (j = box.minX; j < box.maxX; j++) {
                     row.push(gray_matrix[i][j]);
                 }
                 boundingBox.push(row);
@@ -289,9 +272,7 @@
                 small_matrix.push(row);
             }
 
-            // console.log(small_matrix);
-
-            function calculateCenterOfMass(matrix, threshold) {
+            var calculateCenterOfMass = function(matrix, threshold) {
                 var centerY = 0, centerX = 0;
                 var countY = 0, countX = 0;
 
@@ -313,16 +294,12 @@
 
             var center = calculateCenterOfMass(small_matrix, 0.5)
 
-            // console.log(center.y, center.x);
-
             var padding = {
                 top: BOUNDING_BOX_SIZE / 2 - center.y + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
                 bottom: center.y - BOUNDING_BOX_SIZE / 2 + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
                 left: BOUNDING_BOX_SIZE / 2 - center.x + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2,
                 right: center.x - BOUNDING_BOX_SIZE / 2 + (IMAGE_SIZE - BOUNDING_BOX_SIZE)/2
             }
-
-            // console.log(padding);
 
             var correctMatrix = new Array();
             for (var i = 0; i < padding.top; i++) {
