@@ -29,15 +29,27 @@ h1 {
 
 }
 
-#drawsurface {
-    display: block;
-    margin: 10px 10px;
+#canvas {
     background-color: #fff;
-    /*border: 1px solid #444;*/
-    box-shadow: 0px 0px 20px -5px #555;
+    height: 400px;
+    width: 400px;
     float: left;
+    margin: 10px 10px;
+}
+
+#drawsurface, #bounding-box {
+    display: block;
+    box-shadow: 0px 0px 20px -5px #555;
     cursor: crosshair;
-    position: relative;
+    position: absolute;
+}
+
+#bounding-box {
+    z-index: 1;
+}
+
+#drawsurface {
+    z-index: 2;
 }
 
 #results {
