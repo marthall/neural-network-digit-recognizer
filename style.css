@@ -79,7 +79,8 @@ h1 {
 }
 
 #chart {
-    background-color: #eee;
+    /*background-color: #eee;*/
+    border: solid 1px #eee;
 }
 
 #normalize {
@@ -96,7 +97,7 @@ h1 {
 
 input {
     border-style: none;
-    width: 200px;
+    width: 240px;
     height: 40px;
     margin: 20px 0px;
     background-color: #eee;
