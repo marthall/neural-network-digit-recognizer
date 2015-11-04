@@ -1,0 +1,8 @@
+script: bash ./deploy.sh
+env:
+  global:
+  - GH_REF: github.com/<your name>/<your repo>.git
+  - secure: cnShFA6QDcqF6lLwMedjVh/jMvx11JgaMhiWhoHjDDOMQY9ExAJWxesZPYph8N0chENKohfTZsKKMj3tApNOLsuwwc30R1Cyydc7umgXeMs04dnrnuTzKiTTRJ0uhQC/ePtBp6O338qySG2rnZO9SuG36OZQA8OsVunfKMKPRgjF3mJZwyDP5T4cjWE4XVVKGkwqdM3dFbJdPbNaYF1kFEHTlsRQSvSrvL8t4MzOVFNAN82nbRdYIU8T9PWben0mHtYcPFphl9x89c9GYw/NyOi9g3BeHRpyP98Te9/Z/fzLyBwbicURGvjcpUL99IPUYg2oqRN8QiAfsCjvVS8+jPb49dztnK+47Y8IBTcKxP4DszzutmCDFj4zAvoS+6pkB9QwiTz7UJLkxGFkSUAfJK4/Myr/54d2GDqQV6y+MABWY5+NjsS9zY0tTyRofTV89C+Rom4qKvAeqvqBHl/+kaw8gyi7fp5dDg3AQwEdQQK1BmCtrmgQrlnuTxnp3gPQpWY9kQTa6Bo/GUII+HuSsuqb+5snQxlakcS60TfTS0GCSFjWx2FU0f+psOP/EkG4g7lPyVGlDHo5XRIrzgz7wjG+cIfGq6bJnMiV29OlZ1fwD8qMgxnQizEzEmPeWLHOQPhs80SNqa+YgbQBlrRtZkwzXUPDZ52YfPPBz43L05U=
+language: node_js
+node_js:
+- "v4.2.2"

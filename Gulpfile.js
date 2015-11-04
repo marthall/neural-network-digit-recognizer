@@ -8,7 +8,7 @@ var paths = {
 
 gulp.task('scripts', function() {
   return gulp.src([paths.scripts, paths.data])
-    .pipe(concat('script.js'))
+    .pipe(concat('out/script.js'))
     .pipe(gulp.dest('.'));
 });
 
