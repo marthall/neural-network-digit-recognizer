@@ -14,7 +14,7 @@ gulp.task('scripts', function() {
 
 gulp.task('copy', function () {
   return gulp
-    .src('index.js')
+    .src('index.html')
     .pipe(gulp.dest('out'))
 })
 
