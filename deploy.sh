@@ -7,6 +7,7 @@ mkdir out;
 
 # run our compile script, discussed above
 gulp scripts
+gulp copy
 
 # go to the out directory and create a *new* Git repo
 cd out
