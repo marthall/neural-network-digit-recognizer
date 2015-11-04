@@ -2,7 +2,7 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 
 var paths = {
-  scripts: './lib/*.js',
+  scripts: './src/js/*.js',
   data: './data/*.js'
 };
 
@@ -14,7 +14,7 @@ gulp.task('scripts', function() {
 
 gulp.task('copy', function () {
   return gulp
-    .src('index.html')
+    .src(['src/index.html', 'src/css/*.css')
     .pipe(gulp.dest('out'))
 })
 
