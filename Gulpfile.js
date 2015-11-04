@@ -12,6 +12,12 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('.'));
 });
 
+gulp.task('copy', function () {
+  return gulp
+    .src('index.js')
+    .pipe(gulp.dest('out'))
+})
+
 gulp.task('watch', function() {
-    gulp.watch(paths.scripts, ['scripts']);
+    gulp.watch(paths.scripts, ['scripts, copy']);
 })
