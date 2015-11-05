@@ -1,0 +1,32 @@
+<html>
+<head>
+    <meta charset="UTF-8"> 
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Digit recognition</h1>
+    </header>
+    <article id="interactive">
+        <div class="container">
+            <div id="canvas">
+                <canvas id="drawsurface"></canvas>
+                <canvas id="bounding-box"></canvas>
+            </div>
+            <section id="results">
+                <h2>Results: <span id="classification"></span></h2>
+                <canvas id="chart" width="238", height="90"></canvas>
+                <input type="button" id="clear" value="Clear (c)">
+            </section>
+        </div>
+    </article>
+    <div class="content">
+    <article id="description">
+        <h2>How does it work?</h2>
+        <p>The digit recognizer uses a trained neural network to recognize the digits. The network is trained with the famous <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. Work in progress....</p>
+    </article>
+    </div>
+    
+</body>
+<script src="script.js"></script>
+</html>
